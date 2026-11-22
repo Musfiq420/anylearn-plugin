@@ -1,0 +1,135 @@
+import "server-only";
+import type { McpServer } from "@modelcontextprotocol/server";
+import { hasDatabase } from "./db";
+import {
+  AddLessonInput,
+  addLesson,
+  CreateCourseInput,
+  createCourse,
+  GetCourseInput,
+  getCourseForTool,
+  PublishInput,
+  publishCourse,
+  ToolError,
+} from "./store";
+
+/**
+ * The AnyLearn MCP server: four tools the user's ChatGPT or Claude calls to
+ * build a course. The AI writes the content; AnyLearn validates, stores and
+ * hosts it.
+ */
+
+export const SERVER_INSTRUCTIONS = `AnyLearn turns anything the user wants to learn into an interactive course: short explanations with diagrams, questions with instant feedback, and spaced-repetition reviews, hosted at a shareable link.
+
+How to build a course:
+1. Before calling any tool, ask the user a few quick questions in ONE message (skip what they already said): their level, how many lessons (default 5–8), minutes per day, the course language (default: the language they are writing in), and any focus (e.g. exam prep). If they attached a book, notes or images, base the course on that material and set "source" on cards (e.g. "p. 12").
+2. Call create_course with the title and the lesson outline. Keep courseId and editToken for the next calls. Never show the editToken to the user.
+3. Call add_lesson once per lesson, in order, with 5–10 cards:
+   - Open with an "explain" card, then alternate explanations and questions; at least half the cards should be questions.
+   - Question types: "mcq" (plausible wrong options), "fill" (sentence with ___; add a "bank" of word tiles for short answers), "order" (3–6 steps written in the correct order).
+   - Every question gets a short "explanation".
+   - Add an "svg" diagram to explain cards when a picture helps: a complete <svg> with a viewBox, simple shapes and short labels in the course language, no scripts.
+   - Keep text short; learners read on phones. Write everything in the course language.
+4. Call publish_course, then give the user the link. Mention they can share it and that reviews are scheduled automatically.
+
+If a tool returns an error, fix the problem it describes and call it again.`;
+
+type Result = { content: { type: "text"; text: string }[]; structuredContent?: Record<string, unknown>; isError?: boolean };
+
+const ok = (text: string, data: Record<string, unknown>): Result => ({
+  content: [{ type: "text", text }],
+  structuredContent: data,
+});
+
+async function run(fn: () => Promise<Result>): Promise<Result> {
+  if (!hasDatabase()) {
+    return { isError: true, content: [{ type: "text", text: "AnyLearn's database isn't configured on this server yet." }] };
+  }
+  try {
+    return await fn();
+  } catch (err) {
+    if (err instanceof ToolError) return { isError: true, content: [{ type: "text", text: err.message }] };
+    console.error("AnyLearn tool error", err);
+    return { isError: true, content: [{ type: "text", text: "AnyLearn hit an unexpected error. Try again in a moment." }] };
+  }
+}
+
+export function registerTools(server: McpServer) {
+  server.registerTool(
+    "create_course",
+    {
+      title: "Create an AnyLearn course",
+      description:
+        "Start a new course (as a draft) with a title and lesson outline. Returns courseId and editToken; then add each lesson with add_lesson and finish with publish_course. Ask the user about level, length and language first.",
+      inputSchema: CreateCourseInput,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+    },
+    (input) =>
+      run(async () => {
+        const r = await createCourse(input);
+        const outline = r.lessons.map((l) => `${l.id} (${l.title})`).join(", ");
+        return ok(
+          `Draft course created.\ncourseId: ${r.courseId}\neditToken: ${r.editToken} (keep private)\nNext: call add_lesson for each lesson: ${outline}. Then call publish_course.`,
+          r,
+        );
+      }),
+  );
+
+  server.registerTool(
+    "add_lesson",
+    {
+      title: "Add a lesson",
+      description:
+        "Add or replace one lesson's cards. Use a lessonId from the outline (or a new id plus a title to append a lesson). Cards: explain, mcq, fill, order. Returns which lessons are still empty.",
+      inputSchema: AddLessonInput,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    (input) =>
+      run(async () => {
+        const r = await addLesson(input);
+        const next = r.readyToPublish
+          ? r.status === "published"
+            ? `All lessons have cards. The course is live and already shows this change: ${r.url}`
+            : "All lessons have cards. Call publish_course."
+          : `Still empty: ${r.emptyLessons.join(", ")}.`;
+        return ok(`Saved lesson "${input.lessonId}" (${input.cards.length} cards). ${r.lessonsWithCards}/${r.lessonsTotal} lessons done. ${next}`, r);
+      }),
+  );
+
+  server.registerTool(
+    "publish_course",
+    {
+      title: "Publish the course",
+      description:
+        "Publish a course once every lesson has cards. Returns the shareable link and a thumbnail image URL to show the user. Can be called again after edits to refresh the thumbnail.",
+      inputSchema: PublishInput,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+    },
+    (input) =>
+      run(async () => {
+        const r = await publishCourse(input);
+        return ok(
+          `Published "${r.title}": ${r.lessons} lessons, ${r.cards} cards.\nLink: ${r.url}\nThumbnail: ${r.thumbnailUrl}\nShare the link with the user, and show the thumbnail image if you can.`,
+          r,
+        );
+      }),
+  );
+
+  server.registerTool(
+    "get_course",
+    {
+      title: "Get a course",
+      description: "Load a course's full content and build progress, e.g. to continue building it or to edit a lesson later.",
+      inputSchema: GetCourseInput,
+      annotations: { readOnlyHint: true, openWorldHint: false },
+    },
+    (input) =>
+      run(async () => {
+        const r = await getCourseForTool(input);
+        return ok(
+          `Course "${r.course.title}" (${r.status}). ${r.progress.lessonsWithCards}/${r.progress.lessonsTotal} lessons have cards.${r.url ? ` Link: ${r.url}` : ""}\n${JSON.stringify(r.course)}`,
+          r as unknown as Record<string, unknown>,
+        );
+      }),
+  );
+}

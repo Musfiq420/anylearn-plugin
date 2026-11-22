@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "id": "photosynthesis-en",
+  "title": "Photosynthesis: How Plants Make Food",
+  "description": "How a leaf turns sunlight, water and air into food, and why it matters.",
+  "language": "en",
+  "subject": "Biology",
+  "level": "High school",
+  "minutesPerDay": 10,
+  "color": "#1F6F3A",
+  "source": { "name": "biology-notes.pdf" },
+  "lessons": [
+    {
+      "id": "l1",
+      "title": "The leaf’s kitchen",
+      "cards": [
+        {
+          "type": "explain",
+          "id": "intro",
+          "title": "Plants cook their own food",
+          "body": "A leaf uses **sunlight** to turn **water** and **carbon dioxide** into **glucose**, a sugar the plant lives on.\n\n**Oxygen** is the leftover from this cooking, and it escapes into the air.",
+          "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 336 230'><defs><marker id='a' viewBox='0 0 10 10' refX='8' refY='5' markerWidth='7' markerHeight='7' orient='auto-start-reverse'><path d='M0 0 10 5 0 10z' fill='#3E465A'/></marker></defs><circle cx='40' cy='38' r='20' fill='#FFB020'/><g stroke='#FFB020' stroke-width='3' stroke-linecap='round'><line x1='40' y1='8' x2='40' y2='4'/><line x1='70' y1='38' x2='74' y2='38'/><line x1='10' y1='38' x2='6' y2='38'/><line x1='61' y1='17' x2='64' y2='14'/><line x1='19' y1='17' x2='16' y2='14'/></g><text x='40' y='78' text-anchor='middle' font-size='13' font-weight='600' fill='#7A4F00' font-family='system-ui,sans-serif'>Sunlight</text><path d='M64 58 L128 92' stroke='#E08A00' stroke-width='3' stroke-dasharray='6 5' fill='none' marker-end='url(#a)'/><path d='M112 186 C96 120 150 62 236 72 C246 150 190 200 112 186Z' fill='#2F9E44'/><path d='M112 186 C150 156 188 120 228 80' stroke='#1E6B30' stroke-width='3' fill='none' stroke-linecap='round'/><rect x='140' y='118' width='74' height='28' rx='14' fill='#fff'/><text x='177' y='137' text-anchor='middle' font-size='13' font-weight='700' fill='#1E6B30' font-family='system-ui,sans-serif'>Glucose</text><text x='16' y='132' font-size='16' font-weight='700' fill='#3E465A' font-family='system-ui,sans-serif'>CO₂</text><path d='M58 128 L112 128' stroke='#3E465A' stroke-width='2.5' fill='none' marker-end='url(#a)'/><text x='30' y='214' font-size='14' font-weight='600' fill='#1864AB' font-family='system-ui,sans-serif'>Water (H₂O)</text><path d='M108 206 C120 206 128 198 132 186' stroke='#1864AB' stroke-width='2.5' fill='none' marker-end='url(#a)'/><path d='M240 112 L288 96' stroke='#3E465A' stroke-width='2.5' fill='none' marker-end='url(#a)'/><text x='292' y='98' font-size='16' font-weight='700' fill='#3E465A' font-family='system-ui,sans-serif'>O₂</text><text x='258' y='132' font-size='12' fill='#5E6472' font-family='system-ui,sans-serif'>to the air</text></svg>",
+          "note": "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂, powered by light and chlorophyll.",
+          "source": "p. 12"
+        },
+        {
+          "type": "mcq",
+          "id": "gas-out",
+          "question": "Which gas leaves the leaf during photosynthesis?",
+          "options": ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+          "answer": 1,
+          "explanation": "Oxygen is released when water is split, and it exits through tiny pores in the leaf.",
+          "source": "p. 12"
+        },
+        {
+          "type": "fill",
+          "id": "in-out",
+          "text": "In photosynthesis, a leaf takes in ___ and gives off ___ into the air.",
+          "blanks": [
+            { "answers": ["CO₂", "CO2", "carbon dioxide"] },
+            { "answers": ["O₂", "O2", "oxygen"] }
+          ],
+          "bank": ["O₂", "CO₂", "N₂", "H₂O"],
+          "explanation": "Carbon dioxide goes in, oxygen comes out."
+        },
+        {
+          "type": "mcq",
+          "id": "organelle",
+          "question": "In which part of the cell does photosynthesis happen?",
+          "options": ["Mitochondrion", "Chloroplast", "Ribosome", "Nucleus"],
+          "answer": 1,
+          "explanation": "Chloroplasts hold the chlorophyll, which is why they’re called the cell’s kitchen."
+        },
+        {
+          "type": "order",
+          "id": "steps",
+          "prompt": "In what order do the steps of photosynthesis happen?",
+          "items": [
+            "Chlorophyll absorbs sunlight",
+            "Water splits and oxygen is released",
+            "Light energy is stored in ATP",
+            "Glucose is made from CO₂"
+          ],
+          "explanation": "The first three are the light reactions. The last happens in the Calvin cycle, which uses the stored energy to turn CO₂ into glucose."
+        }
+      ]
+    },
+    {
+      "id": "l2",
+      "title": "Chlorophyll and light",
+      "cards": [
+        {
+          "type": "explain",
+          "id": "green",
+          "title": "Why leaves look green",
+          "body": "Chlorophyll is the green pigment inside chloroplasts. It soaks up **red** and **blue** light and uses that energy.\n\nGreen light isn’t absorbed well, so it bounces back to our eyes. That’s why leaves look green.",
+          "note": "Leaves look green because chlorophyll reflects green light.",
+          "source": "p. 13"
+        },
+        {
+          "type": "fill",
+          "id": "pigment",
+          "text": "To absorb light, a leaf needs the green pigment ___.",
+          "blanks": [{ "answers": ["chlorophyll", "chlorophyl"] }],
+          "explanation": "Chlorophyll captures light energy for photosynthesis."
+        },
+        {
+          "type": "mcq",
+          "id": "colors",
+          "question": "Which colors of light does chlorophyll absorb best?",
+          "options": ["Green and yellow", "Red and blue", "Only green", "Ultraviolet only"],
+          "answer": 1,
+          "explanation": "Red and blue are absorbed; green is mostly reflected."
+        },
+        {
+          "type": "explain",
+          "id": "low-light",
+          "title": "What happens in low light?",
+          "body": "Photosynthesis runs on light energy. The more light a leaf gets, the more glucose it makes and the more oxygen bubbles it gives off.\n\nBut past a certain point, more light stops helping. Something else, like the amount of CO₂, becomes the limit.",
+          "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 336 210'><circle cx='52' cy='34' r='20' fill='#FFB020'/><path d='M222 40a16 16 0 0 1 30-6a12 12 0 0 1 20 10a10 10 0 0 1-2 20h-46a12 12 0 0 1-2-24z' fill='#C9CDD6'/><rect x='20' y='78' width='120' height='104' rx='10' fill='#E6EFFA' stroke='#9DB3DA' stroke-width='2'/><rect x='196' y='78' width='120' height='104' rx='10' fill='#E6EFFA' stroke='#9DB3DA' stroke-width='2'/><path d='M80 182C78 150 82 128 80 100' stroke='#22843B' stroke-width='4' fill='none'/><path d='M80 150C60 140 54 126 58 116C72 120 80 132 80 150Z' fill='#2F9E44'/><path d='M80 132C100 124 106 110 102 100C88 104 80 116 80 132Z' fill='#2F9E44'/><path d='M256 182C254 150 258 128 256 100' stroke='#22843B' stroke-width='4' fill='none'/><path d='M256 150C236 140 230 126 234 116C248 120 256 132 256 150Z' fill='#2F9E44'/><path d='M256 132C276 124 282 110 278 100C264 104 256 116 256 132Z' fill='#2F9E44'/><g fill='#fff' stroke='#1F3A8A' stroke-width='1.5'><circle cx='70' cy='94' r='4'/><circle cx='92' cy='90' r='5'/><circle cx='64' cy='108' r='3'/><circle cx='100' cy='112' r='4'/><circle cx='84' cy='86' r='3'/><circle cx='110' cy='96' r='3'/><circle cx='262' cy='94' r='4'/><circle cx='248' cy='104' r='3'/></g><text x='80' y='202' text-anchor='middle' font-size='13' font-weight='700' fill='#14213D' font-family='system-ui,sans-serif'>More light → more O₂</text><text x='256' y='202' text-anchor='middle' font-size='13' font-weight='700' fill='#5E6472' font-family='system-ui,sans-serif'>Less light → less O₂</text></svg>",
+          "note": "Less light means a slower rate, but past a certain point, more light stops helping.",
+          "source": "p. 14"
+        },
+        {
+          "type": "mcq",
+          "id": "plateau",
+          "question": "A plant already gets lots of light. What happens if you add even more?",
+          "options": ["The rate keeps doubling", "The rate levels off", "Photosynthesis stops", "The leaf turns red"],
+          "answer": 1,
+          "explanation": "Past a point, another factor like CO₂ or temperature limits the rate."
+        }
+      ]
+    },
+    {
+      "id": "l3",
+      "title": "Water’s journey",
+      "cards": [
+        {
+          "type": "explain",
+          "id": "journey",
+          "title": "From the soil to the leaf",
+          "body": "Root hairs soak up water from the soil. It travels up the stem through thin tubes called **xylem**, then spreads through the leaf’s veins to every cell.\n\nCarbon dioxide takes a different route: it enters through tiny pores on the leaf called **stomata**.",
+          "source": "p. 15"
+        },
+        {
+          "type": "order",
+          "id": "water-path",
+          "prompt": "How does water from the soil reach the chloroplasts?",
+          "items": [
+            "Root hairs absorb water from the soil",
+            "It rises up the stem through the xylem",
+            "Leaf veins carry it to the cells",
+            "Light energy splits it in the chloroplasts"
+          ]
+        },
+        {
+          "type": "mcq",
+          "id": "co2-entry",
+          "question": "Where does carbon dioxide enter the leaf?",
+          "options": ["Through the roots", "Through the stomata", "Through the xylem", "Through the flowers"],
+          "answer": 1,
+          "explanation": "Stomata open to let CO₂ in and oxygen and water vapor out."
+        },
+        {
+          "type": "fill",
+          "id": "pores",
+          "text": "Tiny pores on a leaf are called ___.",
+          "blanks": [{ "answers": ["stomata", "stoma", "stomates"] }],
+          "bank": ["xylem", "stomata", "chlorophyll"],
+          "explanation": "One pore is a stoma; many are stomata."
+        }
+      ]
+    }
+  ]
+}
