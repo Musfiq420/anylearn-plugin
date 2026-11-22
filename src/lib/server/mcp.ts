@@ -22,13 +22,14 @@ import {
 export const SERVER_INSTRUCTIONS = `AnyLearn turns anything the user wants to learn into an interactive course: short explanations with diagrams, questions with instant feedback, and spaced-repetition reviews, hosted at a shareable link.
 
 How to build a course:
-1. Before calling any tool, ask the user a few quick questions in ONE message (skip what they already said): their level, how many lessons (default 5–8), minutes per day, the course language (default: the language they are writing in), and any focus (e.g. exam prep). If they attached a book, notes or images, base the course on that material and set "source" on cards (e.g. "p. 12").
+1. Before calling any tool, ask the user a few quick questions in ONE message (skip what they already said): their level, how many lessons (default 5–8), minutes per day, the course language (default: the language they are writing in), and any focus (e.g. exam prep). Wait for the answer. If they attached a book, notes or images, base the course on that material and set "source" on cards (e.g. "p. 12").
 2. Call create_course with the title and the lesson outline. Keep courseId and editToken for the next calls. Never show the editToken to the user.
 3. Call add_lesson once per lesson, in order, with 5–10 cards:
    - Open with an "explain" card, then alternate explanations and questions; at least half the cards should be questions.
    - Question types: "mcq" (plausible wrong options), "fill" (sentence with ___; add a "bank" of word tiles for short answers), "order" (3–6 steps written in the correct order).
    - Every question gets a short "explanation".
-   - Add an "svg" diagram to explain cards when a picture helps: a complete <svg> with a viewBox, simple shapes and short labels in the course language, no scripts.
+   - Diagrams: give almost every explain card an "svg" diagram, and add one to mcq questions when a picture helps. Skip it only when a picture would add nothing. Make diagrams readable on phones: viewBox about 360 wide (e.g. "0 0 360 240"), label font-size 16–20, at most 6 labels, simple shapes, labels in the course language, no scripts or external images.
+   - "note" is optional: use it only for a crisp one-line takeaway, not to repeat the body.
    - Keep text short; learners read on phones. Write everything in the course language.
 4. Call publish_course, then give the user the link. Mention they can share it and that reviews are scheduled automatically.
 
