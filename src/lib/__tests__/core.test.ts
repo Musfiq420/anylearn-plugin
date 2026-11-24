@@ -91,3 +91,26 @@ describe("AI input cleanup", async () => {
     expect(normalizeLanguage("pt-BR")).toBe("pt-BR");
   });
 });
+
+describe("interactive cards", () => {
+  it("validates simulations", () => {
+    const base = { type: "simulate", prompt: "p", variables: [{ name: "x", label: "X", min: 0, max: 10, default: 2 }], outputs: [{ label: "y", formula: "x * 2" }] };
+    expect(Card.safeParse(base).success).toBe(true);
+    expect(Card.safeParse({ ...base, outputs: [{ label: "y", formula: "z * 2" }] }).success).toBe(false);
+    expect(Card.safeParse({ ...base, outputs: [{ label: "y", formula: "alert(1)" }] }).success).toBe(false);
+    expect(Card.safeParse({ ...base, goal: { text: "g", condition: "x >= 1" } }).success).toBe(false); // already met at default
+    expect(Card.safeParse({ ...base, goal: { text: "g", condition: "x >= 8" } }).success).toBe(true);
+  });
+  it("grades the new types", () => {
+    const multi = Card.parse({ type: "multi", question: "q", options: ["a", "b", "c"], answers: [0, 2] });
+    expect(isCorrect(multi, { type: "multi", selected: [2, 0] })).toBe(true);
+    expect(isCorrect(multi, { type: "multi", selected: [0] })).toBe(false);
+    const hot = Card.parse({ type: "hotspot", question: "q", svg: "<svg viewBox='0 0 100 100'><circle cx='50' cy='50' r='5'/></svg>", targets: [{ x: 50, y: 50, r: 5 }] });
+    expect(isCorrect(hot, { type: "hotspot", point: { x: 53, y: 52 } })).toBe(true);
+    expect(isCorrect(hot, { type: "hotspot", point: { x: 80, y: 80 } })).toBe(false);
+    expect(Card.safeParse({ type: "hotspot", question: "q", svg: "<svg><circle/></svg>", targets: [{ x: 1, y: 1 }] }).success).toBe(false);
+    const sim = Card.parse({ type: "simulate", prompt: "p", variables: [{ name: "x", label: "X", min: 0, max: 10, default: 2 }], outputs: [{ label: "y", formula: "x" }], goal: { text: "g", condition: "x > 5" } });
+    expect(isCorrect(sim, { type: "simulate", values: { x: 7 } })).toBe(true);
+    expect(isCorrect(sim, { type: "simulate", values: { x: 3 } })).toBe(false);
+  });
+});

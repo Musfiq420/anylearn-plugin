@@ -749,6 +749,379 @@ input.slot:focus {
   padding: 10px 14px;
 }
 
+/* True / false */
+
+.statement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 24px 20px;
+  border-radius: 22px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-bottom-width: 5px;
+  text-align: center;
+}
+
+.statement p {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 700;
+  font-size: 22px;
+  line-height: 1.4;
+}
+
+.statement .figure {
+  width: 100%;
+  border: none;
+  padding: 0;
+}
+
+.tf-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tf-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 100px;
+  border-radius: 20px;
+  border: 2px solid var(--line-strong);
+  border-bottom-width: 5px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--f-display);
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.tf-btn[data-state="selected"] {
+  border-color: var(--navy);
+  background: var(--navy-soft);
+  color: var(--navy);
+}
+
+.tf-btn[data-state="correct"] {
+  border-color: var(--good);
+  background: var(--good-soft);
+  color: var(--good-ink);
+}
+
+.tf-btn[data-state="wrong"] {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+  color: var(--bad-ink);
+}
+
+/* Select all */
+
+.eyebrow-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.count-chip {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amber-ink);
+  background: var(--amber-soft);
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+.check-box {
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 8px;
+  border: 2px solid var(--dash);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.option[data-state="selected"] .check-box {
+  background: var(--navy);
+  border-color: var(--navy);
+}
+
+.option[data-state="correct"] .check-box {
+  background: var(--good);
+  border-color: var(--good);
+}
+
+.option[data-state="wrong"] .check-box {
+  background: var(--bad);
+  border-color: var(--bad);
+}
+
+.option[data-state="missed"] {
+  border-color: var(--good);
+  border-style: dashed;
+}
+
+.option[data-state="missed"] .check-box {
+  border-color: var(--good);
+  color: var(--good);
+}
+
+/* Match pairs */
+
+.match-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.match-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.match-item {
+  min-height: 64px;
+  padding: 8px 10px;
+  border-radius: 16px;
+  border: 2px solid var(--line-strong);
+  border-bottom-width: 4px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.match-item[data-state="selected"] {
+  border-color: var(--navy);
+  background: var(--navy-soft);
+  color: var(--navy);
+}
+
+.match-item[data-state="matched"] {
+  border-color: #bfe3c8;
+  background: #f0faf2;
+  color: #4e8a5e;
+}
+
+.match-item[data-state="wrong"] {
+  border-color: var(--bad);
+  background: var(--bad-soft);
+  color: var(--bad-ink);
+  animation: shake 300ms;
+}
+
+@keyframes shake {
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+/* Tap the picture */
+
+.hotspot-frame {
+  border-radius: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: 8px;
+}
+
+.hotspot-area {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: crosshair;
+  touch-action: manipulation;
+}
+
+.hotspot-area:disabled {
+  cursor: default;
+}
+
+.hotspot-area img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;
+}
+
+.hotspot-marker,
+.hotspot-target {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hotspot-marker {
+  width: 26px;
+  height: 26px;
+  background: var(--amber);
+  border: 4px solid var(--navy);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.85);
+}
+
+.hotspot-marker[data-state="correct"] {
+  background: var(--good);
+  border-color: #fff;
+}
+
+.hotspot-marker[data-state="wrong"] {
+  background: var(--bad);
+  border-color: #fff;
+}
+
+.hotspot-target {
+  aspect-ratio: 1;
+  border: 3px dashed var(--good);
+  background: rgba(34, 132, 59, 0.12);
+}
+
+/* Simulation */
+
+.sim-prompt {
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+
+.sim-outputs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+}
+
+.sim-output {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.sim-output span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.sim-output strong {
+  font-family: var(--f-display);
+  font-size: 26px;
+  font-variant-numeric: tabular-nums;
+}
+
+.sim-output small,
+.sim-slider small {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.sim-graph svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.sim-graph .axis {
+  stroke: #9aa0ac;
+  stroke-width: 1.5;
+}
+
+.sim-graph .tick {
+  font-size: 11px;
+  fill: var(--muted);
+}
+
+.sim-graph .axis-label {
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--ink-2);
+}
+
+.sim-graph .curve {
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.sim-graph .guide {
+  stroke: var(--amber);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+
+.sim-graph .dot {
+  fill: var(--amber);
+  stroke: var(--navy);
+  stroke-width: 3;
+}
+
+.sim-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sim-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sim-slider-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.sim-slider-head label {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sim-slider-head strong {
+  font-family: var(--f-display);
+  font-size: 18px;
+  color: var(--navy);
+  font-variant-numeric: tabular-nums;
+}
+
+.sim-slider input[type="range"] {
+  width: 100%;
+  height: 44px;
+  margin: 0;
+  accent-color: var(--navy);
+}
+
+.note[data-state="met"] {
+  background: var(--good-soft);
+  border-color: #bfe3c8;
+}
+
+.note[data-state="met"] strong {
+  color: var(--good-ink);
+}
+
 /* Footer and feedback */
 
 .footer {

@@ -29,9 +29,17 @@ How to build a course:
 2. Call create_course with the title and the lesson outline. Keep courseId and editToken for the next calls. Never show the editToken to the user.
 3. Call add_lesson once per lesson, in order, with 5–10 cards:
    - Open with an "explain" card, then alternate explanations and questions; at least half the cards should be questions.
-   - Question types: "mcq" (plausible wrong options), "fill" (sentence with ___; add a "bank" of word tiles for short answers), "order" (3–6 steps written in the correct order).
+   - Make it hands-on: mix question types, and use the interactive ones whenever they fit. Don't make every question an mcq.
+     • "mcq": one right option, plausible wrong ones.
+     • "true_false": a statement to judge; ideal for common misconceptions.
+     • "multi": select all that apply (some, not all, options correct).
+     • "fill": sentence with ___; add a "bank" of word tiles for short answers.
+     • "order": 3–6 steps written in the correct order (the player shuffles them).
+     • "match": 3–6 pairs (term → meaning, part → job, word → translation).
+     • "hotspot": the learner taps the right spot on your svg. Draw the target shape unlabeled and give its centre as x/y in the same viewBox coordinates you drew it at.
+     • "simulate": 1–3 sliders feeding live formulas, with an optional graph and a goal ("set the light so the rate is above 25"). Use one in every lesson where the topic has a quantity or cause → effect (physics, chemistry, biology rates, economics, finance, statistics, geometry). Formulas use the variable names, + - * / ^, comparisons, and sin cos sqrt exp ln log min max round pow clamp if; pi and e. The goal must not already be met at the default slider values.
    - Every question gets a short "explanation".
-   - Diagrams: give almost every explain card an "svg" diagram, and add one to mcq questions when a picture helps. Skip it only when a picture would add nothing. Make diagrams readable on phones: viewBox about 360 wide (e.g. "0 0 360 240"), label font-size 16–20, at most 6 labels, simple shapes, labels in the course language, no scripts or external images.
+   - Diagrams: give almost every explain card an "svg" diagram, and add one to questions (mcq, true_false, multi, simulate) when a picture helps. Skip it only when a picture would add nothing. Make diagrams readable on phones: viewBox about 360 wide (e.g. "0 0 360 240"), label font-size 16–20, at most 6 labels, simple shapes, labels in the course language, no scripts or external images.
    - "note" is optional: use it only for a crisp one-line takeaway, not to repeat the body.
    - Keep text short; learners read on phones. Write everything in the course language.
 4. Call publish_course, then give the user the link. Mention they can share it and that reviews are scheduled automatically.
@@ -84,7 +92,7 @@ export function registerTools(server: McpServer) {
     {
       title: "Add a lesson",
       description:
-        "Add or replace one lesson's cards. Use a lessonId from the outline (or a new id plus a title to append a lesson). Cards: explain, mcq, fill, order. Give almost every explain card an \"svg\" diagram; a lesson with explanations but no diagram is rejected. Returns which lessons are still empty.",
+        "Add or replace one lesson's cards. Use a lessonId from the outline (or a new id plus a title to append a lesson). Cards: explain, mcq, true_false, multi, fill, order, match, hotspot (tap the right spot on an svg), simulate (sliders + live formulas + graph). Mix types and include interactive ones (match, hotspot, simulate) where they fit. Give almost every explain card an \"svg\" diagram; a lesson with explanations but no diagram is rejected. Returns which lessons are still empty.",
       inputSchema: AddLessonInput,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     },

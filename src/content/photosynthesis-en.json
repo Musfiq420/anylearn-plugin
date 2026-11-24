@@ -8,7 +8,9 @@
   "level": "High school",
   "minutesPerDay": 10,
   "color": "#1F6F3A",
-  "source": { "name": "biology-notes.pdf" },
+  "source": {
+    "name": "biology-notes.pdf"
+  },
   "lessons": [
     {
       "id": "l1",
@@ -24,30 +26,82 @@
           "source": "p. 12"
         },
         {
+          "type": "true_false",
+          "id": "soil-food",
+          "statement": "Plants get their food from the soil, the way we get food from a plate.",
+          "answer": false,
+          "explanation": "Plants make their own food (glucose) from light, water and CO₂. Soil gives water and minerals, not food."
+        },
+        {
           "type": "mcq",
           "id": "gas-out",
           "question": "Which gas leaves the leaf during photosynthesis?",
-          "options": ["Carbon dioxide", "Oxygen", "Nitrogen", "Hydrogen"],
+          "options": [
+            "Carbon dioxide",
+            "Oxygen",
+            "Nitrogen",
+            "Hydrogen"
+          ],
           "answer": 1,
           "explanation": "Oxygen is released when water is split, and it exits through tiny pores in the leaf.",
           "source": "p. 12"
+        },
+        {
+          "type": "multi",
+          "id": "needs",
+          "question": "What does a leaf need to make glucose?",
+          "options": [
+            "Sunlight",
+            "Water",
+            "Carbon dioxide",
+            "Oxygen",
+            "Soil"
+          ],
+          "answers": [
+            0,
+            1,
+            2
+          ],
+          "explanation": "Light, water and CO₂ go in; oxygen comes out."
         },
         {
           "type": "fill",
           "id": "in-out",
           "text": "In photosynthesis, a leaf takes in ___ and gives off ___ into the air.",
           "blanks": [
-            { "answers": ["CO₂", "CO2", "carbon dioxide"] },
-            { "answers": ["O₂", "O2", "oxygen"] }
+            {
+              "answers": [
+                "CO₂",
+                "CO2",
+                "carbon dioxide"
+              ]
+            },
+            {
+              "answers": [
+                "O₂",
+                "O2",
+                "oxygen"
+              ]
+            }
           ],
-          "bank": ["O₂", "CO₂", "N₂", "H₂O"],
+          "bank": [
+            "O₂",
+            "CO₂",
+            "N₂",
+            "H₂O"
+          ],
           "explanation": "Carbon dioxide goes in, oxygen comes out."
         },
         {
           "type": "mcq",
           "id": "organelle",
           "question": "In which part of the cell does photosynthesis happen?",
-          "options": ["Mitochondrion", "Chloroplast", "Ribosome", "Nucleus"],
+          "options": [
+            "Mitochondrion",
+            "Chloroplast",
+            "Ribosome",
+            "Nucleus"
+          ],
           "answer": 1,
           "explanation": "Chloroplasts hold the chlorophyll, which is why they’re called the cell’s kitchen."
         },
@@ -81,14 +135,26 @@
           "type": "fill",
           "id": "pigment",
           "text": "To absorb light, a leaf needs the green pigment ___.",
-          "blanks": [{ "answers": ["chlorophyll", "chlorophyl"] }],
+          "blanks": [
+            {
+              "answers": [
+                "chlorophyll",
+                "chlorophyl"
+              ]
+            }
+          ],
           "explanation": "Chlorophyll captures light energy for photosynthesis."
         },
         {
           "type": "mcq",
           "id": "colors",
           "question": "Which colors of light does chlorophyll absorb best?",
-          "options": ["Green and yellow", "Red and blue", "Only green", "Ultraviolet only"],
+          "options": [
+            "Green and yellow",
+            "Red and blue",
+            "Only green",
+            "Ultraviolet only"
+          ],
           "answer": 1,
           "explanation": "Red and blue are absorbed; green is mostly reflected."
         },
@@ -102,10 +168,51 @@
           "source": "p. 14"
         },
         {
+          "type": "simulate",
+          "id": "light-sim",
+          "title": "Turn up the light",
+          "prompt": "Drag the light slider and watch the oxygen bubbles. Where does adding light stop helping much?",
+          "variables": [
+            {
+              "name": "light",
+              "label": "Light intensity",
+              "min": 0,
+              "max": 100,
+              "step": 1,
+              "default": 20,
+              "unit": "%"
+            }
+          ],
+          "outputs": [
+            {
+              "label": "Oxygen bubbles",
+              "formula": "30 * (1 - exp(-light / 25))",
+              "unit": "/ min",
+              "decimals": 0
+            }
+          ],
+          "graph": {
+            "x": "light",
+            "y": "30 * (1 - exp(-light / 25))",
+            "xLabel": "Light intensity (%)",
+            "yLabel": "Bubbles / min"
+          },
+          "goal": {
+            "text": "Get the plant to make at least 25 bubbles a minute.",
+            "condition": "30 * (1 - exp(-light / 25)) >= 25"
+          },
+          "explanation": "The rate climbs fast at first, then levels off: past about 50% light, something else (like CO₂) limits it."
+        },
+        {
           "type": "mcq",
           "id": "plateau",
           "question": "A plant already gets lots of light. What happens if you add even more?",
-          "options": ["The rate keeps doubling", "The rate levels off", "Photosynthesis stops", "The leaf turns red"],
+          "options": [
+            "The rate keeps doubling",
+            "The rate levels off",
+            "Photosynthesis stops",
+            "The leaf turns red"
+          ],
           "answer": 1,
           "explanation": "Past a point, another factor like CO₂ or temperature limits the rate."
         }
@@ -137,17 +244,73 @@
           "type": "mcq",
           "id": "co2-entry",
           "question": "Where does carbon dioxide enter the leaf?",
-          "options": ["Through the roots", "Through the stomata", "Through the xylem", "Through the flowers"],
+          "options": [
+            "Through the roots",
+            "Through the stomata",
+            "Through the xylem",
+            "Through the flowers"
+          ],
           "answer": 1,
           "explanation": "Stomata open to let CO₂ in and oxygen and water vapor out."
+        },
+        {
+          "type": "hotspot",
+          "id": "find-stoma",
+          "question": "Tap the pore where carbon dioxide gets into the leaf.",
+          "svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 340 260'><rect x='10' y='14' width='320' height='20' rx='6' fill='#DCEFE1' stroke='#9CCBA8' stroke-width='1.5'/><g fill='#5BB86F' stroke='#2F7D42' stroke-width='1.5'><rect x='14' y='38' width='34' height='78' rx='14'/><rect x='52' y='38' width='34' height='78' rx='14'/><rect x='90' y='38' width='34' height='78' rx='14'/><rect x='128' y='38' width='34' height='78' rx='14'/><rect x='166' y='38' width='34' height='78' rx='14'/><rect x='204' y='38' width='34' height='78' rx='14'/><rect x='242' y='38' width='34' height='78' rx='14'/><rect x='280' y='38' width='34' height='78' rx='14'/></g><g fill='#A8DBB3' stroke='#5E9E6C' stroke-width='1.5'><ellipse cx='34' cy='142' rx='22' ry='16'/><ellipse cx='92' cy='156' rx='26' ry='18'/><ellipse cx='150' cy='136' rx='22' ry='15'/><ellipse cx='250' cy='146' rx='26' ry='18'/><ellipse cx='306' cy='164' rx='20' ry='16'/><ellipse cx='44' cy='186' rx='20' ry='13'/><ellipse cx='140' cy='182' rx='22' ry='14'/><ellipse cx='290' cy='190' rx='22' ry='12'/></g><path d='M10 210 h168 M222 210 h108' stroke='#9CCBA8' stroke-width='20' stroke-linecap='round'/><path d='M180 200 C190 200 198 208 198 220 C188 220 180 212 180 200Z' fill='#2F9E44'/><path d='M220 200 C210 200 202 208 202 220 C212 220 220 212 220 200Z' fill='#2F9E44'/><text x='14' y='252' font-size='13' fill='#5E6472' font-family='system-ui,sans-serif'>Cross-section of a leaf</text></svg>",
+          "targets": [
+            {
+              "x": 200,
+              "y": 210,
+              "r": 24,
+              "label": "The stoma on the underside of the leaf"
+            }
+          ],
+          "explanation": "Stomata sit mostly on the underside of the leaf, between two guard cells."
         },
         {
           "type": "fill",
           "id": "pores",
           "text": "Tiny pores on a leaf are called ___.",
-          "blanks": [{ "answers": ["stomata", "stoma", "stomates"] }],
-          "bank": ["xylem", "stomata", "chlorophyll"],
+          "blanks": [
+            {
+              "answers": [
+                "stomata",
+                "stoma",
+                "stomates"
+              ]
+            }
+          ],
+          "bank": [
+            "xylem",
+            "stomata",
+            "chlorophyll"
+          ],
           "explanation": "One pore is a stoma; many are stomata."
+        },
+        {
+          "type": "match",
+          "id": "parts",
+          "prompt": "Match each part to its job",
+          "pairs": [
+            {
+              "left": "Chlorophyll",
+              "right": "Absorbs light"
+            },
+            {
+              "left": "Stomata",
+              "right": "Let gases in and out"
+            },
+            {
+              "left": "Xylem",
+              "right": "Carries water up"
+            },
+            {
+              "left": "Glucose",
+              "right": "Stored as food"
+            }
+          ],
+          "explanation": "Each part has one job in the leaf's kitchen."
         }
       ]
     }

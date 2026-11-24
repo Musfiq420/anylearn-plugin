@@ -118,7 +118,7 @@ export function Runner({ items, mode, content, onExit, onFinish }: Props) {
             </span>
           </div>
         )}
-        <CardView card={card} answer={answer} setAnswer={setAnswer} checked={checked} seed={item.key} />
+        <CardView card={card} answer={answer} setAnswer={setAnswer} checked={checked} seed={item.key} lang={content.lang} />
       </main>
 
       {!checked && (

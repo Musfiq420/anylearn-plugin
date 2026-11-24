@@ -51,9 +51,14 @@ export function inline(text: string): ReactNode[] {
 }
 
 /** Shows course SVG through <img>, so any script inside it can never run. */
-export function SvgFigure({ svg, label }: { svg: string; label?: string }) {
+/** Course SVG as a data: URL for <img>. */
+export function svgDataUrl(svg: string): string {
   const markup = /\sxmlns=/.test(svg) ? svg : svg.replace(/^<svg/i, '<svg xmlns="http://www.w3.org/2000/svg"');
-  const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`;
+}
+
+export function SvgFigure({ svg, label }: { svg: string; label?: string }) {
+  const src = svgDataUrl(svg);
   return (
     <figure className="figure">
       {/* eslint-disable-next-line @next/next/no-img-element -- data: URL from course content */}

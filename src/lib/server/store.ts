@@ -155,7 +155,7 @@ export async function addLesson(input: z.infer<typeof AddLessonInput>) {
     const check = Lesson.safeParse(lesson);
     if (!check.success) throw new ToolError(`The lesson isn't valid:\n${formatIssues(check.error)}`);
     const hasExplain = check.data.cards.some((c) => c.type === "explain");
-    const hasDiagram = check.data.cards.some((c) => (c.type === "explain" || c.type === "mcq") && c.svg);
+    const hasDiagram = check.data.cards.some((c) => "svg" in c && Boolean(c.svg));
     if (hasExplain && !hasDiagram) {
       throw new ToolError(
         'The lesson wasn\'t saved: it has no diagram. Add an "svg" diagram to the explain cards (ideally almost every one): a complete <svg> with viewBox about "0 0 360 240", simple shapes and short labels in the course language. Then call add_lesson again.',

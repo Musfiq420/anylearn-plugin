@@ -1,8 +1,21 @@
 "use client";
 
-import { fillBlankCorrect, type Answer } from "@/lib/grading";
+import { fillBlankCorrect, type Answer, type AnswerOf } from "@/lib/grading";
 import { t } from "@/lib/i18n";
-import { BLANK, type Card, type ExplainCard, type FillCard, type McqCard, type OrderCard } from "@/lib/schema";
+import {
+  BLANK,
+  type Card,
+  type ExplainCard,
+  type FillCard,
+  type HotspotCard,
+  type MatchCard,
+  type McqCard,
+  type MultiCard,
+  type OrderCard,
+  type SimulateCard,
+  type TrueFalseCard,
+} from "@/lib/schema";
+import { HotspotView, MatchView, MultiView, SimulateView, TrueFalseView } from "./InteractiveCards";
 import { shuffledIndices } from "@/lib/text";
 import { Fragment } from "react";
 import { CheckIcon, CloseIcon, SparkIcon } from "../Icons";
@@ -16,6 +29,8 @@ export type CardProps<C extends Card, A extends Answer> = {
   checked: boolean;
   /** Seed for stable shuffles, usually the card key. */
   seed: string;
+  /** Course language, for number formatting. */
+  lang?: string;
 };
 
 export function CardView(props: CardProps<Card, Answer>) {
@@ -29,6 +44,16 @@ export function CardView(props: CardProps<Card, Answer>) {
       return <FillView {...(props as CardProps<FillCard, Extract<Answer, { type: "fill" }>>)} />;
     case "order":
       return <OrderView {...(props as CardProps<OrderCard, Extract<Answer, { type: "order" }>>)} />;
+    case "true_false":
+      return <TrueFalseView {...(props as CardProps<TrueFalseCard, AnswerOf<"true_false">>)} />;
+    case "multi":
+      return <MultiView {...(props as CardProps<MultiCard, AnswerOf<"multi">>)} />;
+    case "match":
+      return <MatchView {...(props as CardProps<MatchCard, AnswerOf<"match">>)} />;
+    case "hotspot":
+      return <HotspotView {...(props as CardProps<HotspotCard, AnswerOf<"hotspot">>)} />;
+    case "simulate":
+      return <SimulateView {...(props as CardProps<SimulateCard, AnswerOf<"simulate">>)} />;
   }
 }
 

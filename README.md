@@ -13,12 +13,12 @@ The interface is in English. Courses can be in any language, including right-to-
 
 | Phase | What | Status |
 |---|---|---|
-| 1 | Course format + web player (4 card types, lessons, reviews, streak/XP) | **Done** |
+| 1 | Course format + web player (lessons, reviews, streak/XP) | **Done** |
 | 2 | MCP server, database, share links, thumbnails | **Done** |
 | 3 | In-chat course card (MCP Apps UI) | **Done** |
 | 4 | Attached files (PDF, images) | |
 | 5 | Accounts and progress sync | |
-| 6 | Six more card types | |
+| 6 | Interactive cards: true/false, select all, match pairs, tap the picture, slider simulations | **Done** |
 | 7 | Launch and directory submissions | |
 
 ## Run it
@@ -108,10 +108,12 @@ src/
     CourseHome.tsx        Course card, today's review, lesson path
     Runner.tsx            Runs a list of cards: check, feedback, wrong answers come back at the end
     Cards.tsx             Explain, multiple choice, fill in the blank, put in order
+    InteractiveCards.tsx  True/false, select all, match pairs, tap the picture, slider simulation
     DoneScreen.tsx, Rich.tsx (safe mini-markdown, SVG via <img>)
   lib/
     schema.ts             THE course format (v1). The MCP server will validate against this.
     grading.ts            Answer state, canCheck, isCorrect, correct-answer text
+    expr.ts               Safe formula parser for simulations (no eval)
     srs.ts                FSRS scheduling (shortest gap: 1 day)
     progress.ts           Progress in localStorage (moves to the server in Phase 5)
     server/
