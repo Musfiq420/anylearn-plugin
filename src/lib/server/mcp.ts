@@ -84,7 +84,7 @@ export function registerTools(server: McpServer) {
     {
       title: "Add a lesson",
       description:
-        "Add or replace one lesson's cards. Use a lessonId from the outline (or a new id plus a title to append a lesson). Cards: explain, mcq, fill, order. Returns which lessons are still empty.",
+        "Add or replace one lesson's cards. Use a lessonId from the outline (or a new id plus a title to append a lesson). Cards: explain, mcq, fill, order. Give almost every explain card an \"svg\" diagram; a lesson with explanations but no diagram is rejected. Returns which lessons are still empty.",
       inputSchema: AddLessonInput,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
     },

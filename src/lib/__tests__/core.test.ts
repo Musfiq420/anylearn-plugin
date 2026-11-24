@@ -77,3 +77,17 @@ describe("spaced repetition", () => {
     expect(daysUntil(dueDate(second), later)).toBeGreaterThan(d1);
   });
 });
+
+describe("AI input cleanup", async () => {
+  const { cleanSvg, normalizeLanguage } = await import("../schema");
+  it("strips fences, XML declarations and comments around SVG", () => {
+    const svg = "<svg viewBox='0 0 10 10'><rect/></svg>";
+    expect(cleanSvg("```svg\n<?xml version=\"1.0\"?>\n<!-- diagram -->\n" + svg + "\n```")).toBe(svg);
+    expect(Card.safeParse({ type: "explain", body: "x", svg: "<?xml version='1.0'?>" + svg }).success).toBe(true);
+  });
+  it("turns language names into codes", () => {
+    expect(normalizeLanguage("বাংলা")).toBe("bn");
+    expect(normalizeLanguage("English")).toBe("en");
+    expect(normalizeLanguage("pt-BR")).toBe("pt-BR");
+  });
+});

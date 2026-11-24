@@ -1,7 +1,7 @@
 import "server-only";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { Card, Course, courseDir, Lesson, type Course as CourseT } from "../schema";
+import { Card, Course, courseDir, Lesson, normalizeLanguage, type Course as CourseT } from "../schema";
 import type { CourseCardData } from "./courseCard";
 import { db } from "./db";
 import { courseUrl, siteUrl } from "./site";
@@ -111,7 +111,7 @@ export async function createCourse(input: z.infer<typeof CreateCourseInput>) {
     id,
     title: input.title,
     description: input.description,
-    language: input.language,
+    language: normalizeLanguage(input.language),
     dir: input.dir,
     subject: input.subject,
     level: input.level,
@@ -154,6 +154,13 @@ export async function addLesson(input: z.infer<typeof AddLessonInput>) {
     };
     const check = Lesson.safeParse(lesson);
     if (!check.success) throw new ToolError(`The lesson isn't valid:\n${formatIssues(check.error)}`);
+    const hasExplain = check.data.cards.some((c) => c.type === "explain");
+    const hasDiagram = check.data.cards.some((c) => (c.type === "explain" || c.type === "mcq") && c.svg);
+    if (hasExplain && !hasDiagram) {
+      throw new ToolError(
+        'The lesson wasn\'t saved: it has no diagram. Add an "svg" diagram to the explain cards (ideally almost every one): a complete <svg> with viewBox about "0 0 360 240", simple shapes and short labels in the course language. Then call add_lesson again.',
+      );
+    }
     if (index < 0) draft.lessons.push(check.data);
     else draft.lessons[index] = check.data;
 

@@ -13,13 +13,25 @@ export const BLANK = /_{3,}/g;
 const text = (max: number) => z.string().trim().min(1).max(max);
 
 /** Inline SVG markup. Rendered through <img>, so scripts inside never run. */
-export const SvgMarkup = z
-  .string()
-  .trim()
-  .max(60_000, "SVG must be under 60 KB")
-  .refine((s) => /^<svg[\s>]/i.test(s) && /<\/svg>\s*$/i.test(s), {
-    message: "SVG must start with <svg and end with </svg>",
-  });
+/** Strips what AIs often wrap around SVG: code fences, an XML declaration, a doctype, comments. */
+export function cleanSvg(raw: unknown): unknown {
+  if (typeof raw !== "string") return raw;
+  let s = raw.trim();
+  s = s.replace(/^```[a-z]*\s*/i, "").replace(/\s*```$/, "");
+  s = s.replace(/^<\?xml[^>]*\?>\s*/i, "").replace(/^<!DOCTYPE[^>]*>\s*/i, "");
+  while (/^<!--[\s\S]*?-->\s*/.test(s)) s = s.replace(/^<!--[\s\S]*?-->\s*/, "");
+  return s.trim();
+}
+
+export const SvgMarkup = z.preprocess(
+  cleanSvg,
+  z
+    .string()
+    .max(60_000, "SVG must be under 60 KB")
+    .refine((s) => /^<svg[\s>]/i.test(s) && /<\/svg>\s*$/i.test(s), {
+      message: "SVG must start with <svg and end with </svg>",
+    }),
+);
 
 const base = {
   /** Stable id inside the lesson. Optional: the card's position is used if missing. */
@@ -34,7 +46,9 @@ export const ExplainCard = z.object({
   title: text(120).optional(),
   /** Light markdown: paragraphs, **bold**, *italic*, `code`, "- " lists. */
   body: text(4000).describe("Short explanation (2–4 short paragraphs max). Light markdown: blank line between paragraphs, **bold**, *italic*, `code`, \"- \" lists."),
-  svg: SvgMarkup.optional().describe("Optional diagram as a complete <svg> with a viewBox. Simple shapes and labels, no scripts or external images."),
+  svg: SvgMarkup.optional().describe(
+    "Diagram for this card: a complete <svg> with a viewBox about 360 wide, simple shapes, 16–20px labels in the course language, no scripts or external images. Expected on almost every explain card.",
+  ),
   /** Short highlighted takeaway shown as a "Remember" box. */
   note: text(400).optional().describe("One-sentence key takeaway, shown in a highlighted \"Remember\" box."),
 });
@@ -115,7 +129,7 @@ export const Course = z.object({
   title: text(140),
   description: text(400).optional(),
   /** BCP-47 language tag of the course content, e.g. "en", "bn", "ar". */
-  language: z.string().trim().min(2).max(20),
+  language: z.string().trim().min(2).max(20).describe('Language code of the content, e.g. "en", "bn", "ar", "hi".'),
   /** Text direction. Derived from language when missing. */
   dir: z.enum(["ltr", "rtl"]).optional(),
   subject: text(60).optional(),
@@ -150,4 +164,19 @@ export function isQuestion(card: Card): card is QuestionCard {
 /** Stable id of a card across sessions: "<lessonId>:<cardId or index>". */
 export function cardKey(lesson: Lesson, index: number): string {
   return `${lesson.id}:${lesson.cards[index].id ?? index}`;
+}
+
+const LANGUAGE_NAMES: Record<string, string> = {
+  bangla: "bn", bengali: "bn", "বাংলা": "bn", english: "en", "ইংরেজি": "en", arabic: "ar", "العربية": "ar",
+  hindi: "hi", "हिन्दी": "hi", "हिंदी": "hi", urdu: "ur", "اردو": "ur", spanish: "es", "español": "es",
+  french: "fr", "français": "fr", german: "de", deutsch: "de", chinese: "zh", "中文": "zh", japanese: "ja",
+  "日本語": "ja", korean: "ko", "한국어": "ko", portuguese: "pt", "português": "pt", russian: "ru", "русский": "ru",
+  indonesian: "id", malay: "ms", turkish: "tr", "türkçe": "tr", persian: "fa", farsi: "fa", "فارسی": "fa",
+  tamil: "ta", nepali: "ne", "नेपाली": "ne",
+};
+
+/** Turns "Bangla" or "বাংলা" into "bn"; leaves real language codes alone. */
+export function normalizeLanguage(value: string): string {
+  const v = value.trim();
+  return LANGUAGE_NAMES[v.toLowerCase()] ?? v;
 }
