@@ -16,7 +16,7 @@ The interface is in English. Courses can be in any language, including right-to-
 | 1 | Course format + web player (lessons, reviews, streak/XP) | **Done** |
 | 2 | MCP server, database, share links, thumbnails | **Done** |
 | 3 | In-chat course card (MCP Apps UI) | **Done** |
-| 4 | Attached files (PDF, images) | |
+| 4 | Attached material: course follows the user's PDF/notes; their photos on cards (`add_image`, ChatGPT only) | **Done** |
 | 5 | Accounts and progress sync | |
 | 6 | Interactive cards: true/false, select all, match pairs, tap the picture, slider simulations | **Done** |
 | 7 | Launch and directory submissions | |
@@ -121,6 +121,7 @@ src/
       courseCard.ts       The in-chat course card (MCP App HTML)
       store.ts            Create / add lesson / publish / load, edit tokens, limits
       courses.ts          Course lookup for pages (samples, then database)
+      images.ts           Downloads the user's pictures (ChatGPT file params), resizes, strips EXIF, WebP
       db.ts, storage.ts   Postgres and Supabase Storage clients
       thumbnail.ts, textpath.ts   Thumbnail drawing
     i18n.ts               Every interface string

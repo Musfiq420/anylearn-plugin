@@ -8,7 +8,7 @@ import { shuffledIndices } from "@/lib/text";
 import { useMemo } from "react";
 import { CheckIcon, CloseIcon, SparkIcon } from "../Icons";
 import type { CardProps } from "./Cards";
-import { inline, SvgFigure, svgDataUrl } from "./Rich";
+import { CardImage, inline, SvgFigure, svgDataUrl } from "./Rich";
 
 /* ---------- True / false ---------- */
 
@@ -18,6 +18,7 @@ export function TrueFalseView({ card, answer, setAnswer, checked }: CardProps<Tr
     <>
       <div className="eyebrow">{t.trueOrFalse}</div>
       <div className="statement">
+        <CardImage id={card.image} />
         {card.svg && <SvgFigure svg={card.svg} />}
         <p>{inline(card.statement)}</p>
       </div>
@@ -63,6 +64,7 @@ export function MultiView({ card, answer, setAnswer, checked }: CardProps<MultiC
         {answer.selected.length > 0 && !checked && <span className="count-chip">{t.selectedCount(answer.selected.length)}</span>}
       </div>
       <h1 className="card-title">{inline(card.question)}</h1>
+      <CardImage id={card.image} />
       {card.svg && <SvgFigure svg={card.svg} />}
       <div className="options">
         {card.options.map((option, i) => {

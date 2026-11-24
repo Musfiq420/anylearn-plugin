@@ -34,6 +34,15 @@ export const SvgMarkup = z.preprocess(
     }),
 );
 
+/** Reference to a picture the user supplied (uploaded with the add_image tool). */
+export const ImageId = z
+  .string()
+  .trim()
+  .regex(/^img_[A-Za-z0-9]{6,30}$/, 'image must be an id returned by add_image, like "img_ab12cd34"');
+const imageField = ImageId.optional().describe(
+  "Optional: id of a picture from the user's own material, returned by add_image (ChatGPT only). Shown above the text.",
+);
+
 const base = {
   /** Stable id inside the lesson. Optional: the card's position is used if missing. */
   id: z.string().trim().min(1).max(40).optional().describe("Optional stable id for this card within the lesson, e.g. \"q-oxygen\"."),
@@ -47,6 +56,7 @@ export const ExplainCard = z.object({
   title: text(120).optional(),
   /** Light markdown: paragraphs, **bold**, *italic*, `code`, "- " lists. */
   body: text(4000).describe("Short explanation (2–4 short paragraphs max). Light markdown: blank line between paragraphs, **bold**, *italic*, `code`, \"- \" lists."),
+  image: imageField,
   svg: SvgMarkup.optional().describe(
     "Diagram for this card: a complete <svg> with a viewBox about 360 wide, simple shapes, 16–20px labels in the course language, no scripts or external images. Expected on almost every explain card.",
   ),
@@ -58,6 +68,7 @@ export const McqCard = z.object({
   type: z.literal("mcq"),
   ...base,
   question: text(400),
+  image: imageField,
   svg: SvgMarkup.optional(),
   options: z.array(text(200)).min(2).max(6).describe("2–6 options; wrong ones should be plausible."),
   /** Index of the correct option. */
@@ -97,6 +108,7 @@ export const TrueFalseCard = z.object({
   ...base,
   statement: text(400).describe("A claim the learner judges true or false. Great for common misconceptions."),
   answer: z.boolean().describe("true if the statement is correct."),
+  image: imageField,
   svg: SvgMarkup.optional(),
   explanation: text(600).optional(),
 });
@@ -105,6 +117,7 @@ export const MultiCard = z.object({
   type: z.literal("multi"),
   ...base,
   question: text(400),
+  image: imageField,
   svg: SvgMarkup.optional(),
   options: z.array(text(200)).min(3).max(8),
   /** Indices of every correct option. */
@@ -310,8 +323,33 @@ export const Course = z.object({
   /** Accent color for the course header and thumbnail. */
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
   source: z.object({ name: text(200) }).optional(),
+  /** Pictures from the user's material, added by the server (add_image). Cards point at them by id. */
+  images: z
+    .array(
+      z.object({
+        id: ImageId,
+        url: z.string().url().regex(/^https?:\/\//),
+        width: z.number().int().positive(),
+        height: z.number().int().positive(),
+        alt: text(300).optional(),
+      }),
+    )
+    .max(40)
+    .optional(),
   lessons: z.array(Lesson).min(1).max(60),
 });
+
+/** Image ids that cards use but the course doesn't have, as "lessonId/card n: img_x". */
+export function missingImages(course: { images?: { id: string }[]; lessons: { id: string; cards: Card[] }[] }): string[] {
+  const have = new Set((course.images ?? []).map((i) => i.id));
+  const missing: string[] = [];
+  for (const lesson of course.lessons) {
+    lesson.cards.forEach((card, i) => {
+      if ("image" in card && card.image && !have.has(card.image)) missing.push(`${lesson.id} card ${i + 1}: ${card.image}`);
+    });
+  }
+  return missing;
+}
 
 export type ExplainCard = z.infer<typeof ExplainCard>;
 export type McqCard = z.infer<typeof McqCard>;

@@ -5,6 +5,8 @@ import { COURSE_CARD_URI, courseCardHtml } from "./courseCard";
 import { hasDatabase } from "./db";
 import { siteUrl } from "./site";
 import {
+  AddImageInput,
+  addImage,
   AddLessonInput,
   addLesson,
   CreateCourseInput,
@@ -25,7 +27,14 @@ import {
 export const SERVER_INSTRUCTIONS = `AnyLearn turns anything the user wants to learn into an interactive course: short explanations with diagrams, questions with instant feedback, and spaced-repetition reviews, hosted at a shareable link.
 
 How to build a course:
-1. Before calling any tool, ask the user a few quick questions in ONE message (skip what they already said): their level, how many lessons (default 5–8), minutes per day, the course language (default: the language they are writing in), and any focus (e.g. exam prep). Wait for the answer. If they attached a book, notes or images, base the course on that material and set "source" on cards (e.g. "p. 12").
+1. Before calling any tool, ask the user a few quick questions in ONE message (skip what they already said): their level, how many lessons (default 5–8), minutes per day, the course language (default: the language they are writing in), and any focus (e.g. exam prep). Wait for the answer.
+
+If the user attached material (a book, chapter, slides, notes, photos):
+   - Build the course from that material, not from general knowledge: follow its order and cover all of it (or the part the user picked); for a long book, one lesson per section or chapter. Pass its name as sourceName in create_course.
+   - Set "source" on cards to where the idea comes from (e.g. "p. 12", "Slide 4", "Fig. 2.3").
+   - Use the material's own terms, examples and numbers in questions, so the course matches what the user will be tested on.
+   - Redraw the material's figures and tables as simple svg diagrams.
+   - Only in ChatGPT: when a photo or figure the user attached is worth showing as-is (a specimen, a map, a handwritten diagram), call add_image with that file, then put the returned id in a card's "image" field. Don't use add_image for pictures from the web.
 2. Call create_course with the title and the lesson outline. Keep courseId and editToken for the next calls. Never show the editToken to the user.
 3. Call add_lesson once per lesson, in order, with 5–10 cards:
    - Open with an "explain" card, then alternate explanations and questions; at least half the cards should be questions.
@@ -105,6 +114,26 @@ export function registerTools(server: McpServer) {
             : "All lessons have cards. Call publish_course."
           : `Still empty: ${r.emptyLessons.join(", ")}.`;
         return ok(`Saved lesson "${input.lessonId}" (${input.cards.length} cards). ${r.lessonsWithCards}/${r.lessonsTotal} lessons done. ${next}`, r);
+      }),
+  );
+
+  server.registerTool(
+    "add_image",
+    {
+      title: "Add the user's picture",
+      description:
+        "ChatGPT only: store a picture the user attached in this chat (a photo, scan or figure from their material) so cards can show it. Pass the attached file as \"image\" and a short alt text. Returns an imageId to put in a card's \"image\" field (explain, mcq, true_false, multi). Not for images from the web; draw an svg diagram for those.",
+      inputSchema: AddImageInput,
+      annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: false },
+      _meta: { "openai/fileParams": ["image"] },
+    },
+    (input) =>
+      run(async () => {
+        const r = await addImage(input);
+        return ok(
+          `Picture saved as ${r.imageId} (${r.width}×${r.height}). Use "image": "${r.imageId}" on an explain, mcq, true_false or multi card in add_lesson.`,
+          r,
+        );
       }),
   );
 

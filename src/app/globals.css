@@ -457,6 +457,16 @@ a {
   object-fit: contain;
 }
 
+.figure.photo {
+  padding: 0;
+  overflow: hidden;
+}
+
+.figure.photo img {
+  max-height: 360px;
+  background: #efe8da;
+}
+
 .note {
   display: flex;
   gap: 12px;

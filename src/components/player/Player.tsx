@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { CourseHome } from "./CourseHome";
 import { DoneScreen } from "./DoneScreen";
 import { Runner, XP_PER_QUESTION, type RunItem, type RunResult } from "./Runner";
+import { CourseImages } from "./Rich";
 
 const LESSON_BONUS_XP = 10;
 const REVIEW_BATCH = 20;
@@ -22,6 +23,15 @@ type View =
 export type ContentProps = { dir: "ltr" | "rtl"; lang: string };
 
 export function Player({ course }: { course: Course }) {
+  const images = useMemo(() => new Map((course.images ?? []).map((img) => [img.id, img])), [course.images]);
+  return (
+    <CourseImages.Provider value={images}>
+      <CoursePlayer course={course} />
+    </CourseImages.Provider>
+  );
+}
+
+function CoursePlayer({ course }: { course: Course }) {
   const [progress, updateProgress] = useCourseProgress(course.id);
   const [profile, updateProfile] = useProfile();
   const [view, setView] = useState<View>({ name: "home" });

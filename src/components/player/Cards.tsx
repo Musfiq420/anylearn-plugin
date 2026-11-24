@@ -19,7 +19,7 @@ import { HotspotView, MatchView, MultiView, SimulateView, TrueFalseView } from "
 import { shuffledIndices } from "@/lib/text";
 import { Fragment } from "react";
 import { CheckIcon, CloseIcon, SparkIcon } from "../Icons";
-import { inline, Markdown, SvgFigure } from "./Rich";
+import { CardImage, inline, Markdown, SvgFigure } from "./Rich";
 
 export type CardProps<C extends Card, A extends Answer> = {
   card: C;
@@ -62,6 +62,7 @@ function ExplainView({ card }: { card: ExplainCard }) {
     <>
       <div className="eyebrow">{t.newIdea}</div>
       {card.title && <h1 className="card-title">{card.title}</h1>}
+      <CardImage id={card.image} />
       <Markdown text={card.body} />
       {card.svg && <SvgFigure svg={card.svg} label={card.title} />}
       {card.note && (
@@ -87,6 +88,7 @@ function McqView({ card, answer, setAnswer, checked }: CardProps<McqCard, Extrac
         {t.chooseAnswer}
       </div>
       <h1 className="card-title">{inline(card.question)}</h1>
+      <CardImage id={card.image} />
       {card.svg && <SvgFigure svg={card.svg} />}
       <div className="options" role="radiogroup" aria-labelledby="mcq-label">
         {card.options.map((option, i) => {

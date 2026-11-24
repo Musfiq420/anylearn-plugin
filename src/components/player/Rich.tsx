@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from "react";
+import { createContext, Fragment, useContext, type ReactNode } from "react";
 
 /**
  * Tiny, safe markdown: paragraphs, "- " lists, **bold**, *italic*, `code`.
@@ -50,7 +50,6 @@ export function inline(text: string): ReactNode[] {
   return out;
 }
 
-/** Shows course SVG through <img>, so any script inside it can never run. */
 /** Course SVG as a data: URL for <img>. */
 export function svgDataUrl(svg: string): string {
   const markup = /\sxmlns=/.test(svg) ? svg : svg.replace(/^<svg/i, '<svg xmlns="http://www.w3.org/2000/svg"');
@@ -63,6 +62,23 @@ export function SvgFigure({ svg, label }: { svg: string; label?: string }) {
     <figure className="figure">
       {/* eslint-disable-next-line @next/next/no-img-element -- data: URL from course content */}
       <img src={src} alt={label ?? ""} />
+    </figure>
+  );
+}
+
+export type CourseImage = { id: string; url: string; width: number; height: number; alt?: string };
+
+/** The course's pictures from the user's material, looked up by cards' "image" id. */
+export const CourseImages = createContext<ReadonlyMap<string, CourseImage>>(new Map());
+
+export function CardImage({ id }: { id?: string }) {
+  const images = useContext(CourseImages);
+  const image = id ? images.get(id) : undefined;
+  if (!image) return null;
+  return (
+    <figure className="figure photo">
+      {/* eslint-disable-next-line @next/next/no-img-element -- stored in our bucket, already resized */}
+      <img src={image.url} alt={image.alt ?? ""} width={image.width} height={image.height} loading="lazy" decoding="async" />
     </figure>
   );
 }

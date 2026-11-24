@@ -1,11 +1,12 @@
 import "server-only";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { Card, Course, courseDir, Lesson, normalizeLanguage, type Course as CourseT } from "../schema";
+import { Card, Course, courseDir, Lesson, missingImages, normalizeLanguage, type Course as CourseT } from "../schema";
 import type { CourseCardData } from "./courseCard";
 import { db } from "./db";
 import { courseUrl, siteUrl } from "./site";
-import { uploadPublic } from "./storage";
+import { downloadImage, ImageError, processImage } from "./images";
+import { hasStorage, uploadPublic } from "./storage";
 import { renderThumbnail } from "./thumbnail";
 
 /**
@@ -161,6 +162,12 @@ export async function addLesson(input: z.infer<typeof AddLessonInput>) {
         'The lesson wasn\'t saved: it has no diagram. Add an "svg" diagram to the explain cards (ideally almost every one): a complete <svg> with viewBox about "0 0 360 240", simple shapes and short labels in the course language. Then call add_lesson again.',
       );
     }
+    const missing = missingImages({ images: draft.images, lessons: [check.data] });
+    if (missing.length) {
+      throw new ToolError(
+        `These cards point at images this course doesn't have: ${missing.join("; ")}. Use only ids returned by add_image, or remove the "image" field.`,
+      );
+    }
     if (index < 0) draft.lessons.push(check.data);
     else draft.lessons[index] = check.data;
 
@@ -169,6 +176,72 @@ export async function addLesson(input: z.infer<typeof AddLessonInput>) {
       set data = ${tx.json(draft as never)}, title = ${draft.title}, version = version + 1, updated_at = now()
       where id = ${row.id}`;
     return { ...draftStatus(draft), status: row.status, url: row.status === "published" ? courseUrl(row.id) : undefined };
+  });
+}
+
+const MAX_IMAGES = 40;
+
+/** What ChatGPT sends for a file parameter. Some clients send only a string; we explain that case. */
+const FileRef = z
+  .object({
+    download_url: z.string().min(1),
+    file_id: z.string().optional(),
+    mime_type: z.string().optional(),
+    file_name: z.string().optional(),
+  })
+  .passthrough();
+
+export const AddImageInput = z.object({
+  courseId: z.string().trim().min(3).max(40),
+  editToken: z.string().trim().min(10).max(200),
+  image: z
+    .union([FileRef, z.string()])
+    .describe("The picture the user attached in this chat (passed as a file)."),
+  alt: z.string().trim().min(1).max(300).describe("Short description of the picture, in the course language."),
+});
+
+/** Downloads one of the user's pictures, stores it and returns an id for cards' "image" field. */
+export async function addImage(input: z.infer<typeof AddImageInput>) {
+  if (!hasStorage()) throw new ToolError("Picture storage isn't set up on this server. Redraw the picture as an svg diagram instead.");
+  const sql = db();
+  // Check the token first, without holding a lock during the download.
+  const rows = await sql<Row[]>`
+    select id, edit_token_hash, status, data, thumbnail_url, version from anylearn_plugin.courses where id = ${input.courseId}`;
+  if (!rows[0]) throw new ToolError(`No course with id "${input.courseId}". Check the courseId returned by create_course.`);
+  if (!tokenMatches(input.editToken, rows[0].edit_token_hash)) {
+    throw new ToolError("editToken doesn't match this course. Use the editToken returned by create_course.");
+  }
+  if ((DraftCourse.parse(rows[0].data).images?.length ?? 0) >= MAX_IMAGES) {
+    throw new ToolError(`A course can have at most ${MAX_IMAGES} pictures. Reuse an existing image id or use an svg diagram.`);
+  }
+  if (typeof input.image === "string") {
+    throw new ToolError(
+      "The picture arrived without a download link (this happens in some ChatGPT apps, e.g. on mobile). Continue without it: redraw the picture as an svg diagram, or ask the user to attach it again from ChatGPT on the web.",
+    );
+  }
+
+  let processed;
+  try {
+    processed = await processImage(await downloadImage(input.image.download_url));
+  } catch (err) {
+    if (err instanceof ImageError) throw new ToolError(err.message);
+    throw err;
+  }
+  const imageId = `img_${newId()}${newId().slice(0, 4)}`;
+  const url = await uploadPublic(`images/${input.courseId}/${imageId}.webp`, processed.data, "image/webp");
+  if (!url) throw new ToolError("Picture storage isn't set up on this server. Redraw the picture as an svg diagram instead.");
+
+  return sql.begin(async (tx) => {
+    const row = await loadForEdit(tx as unknown as ReturnType<typeof db>, input.courseId, input.editToken);
+    const draft = DraftCourse.parse(row.data);
+    const images = draft.images ?? [];
+    if (images.length >= MAX_IMAGES) throw new ToolError(`A course can have at most ${MAX_IMAGES} pictures.`);
+    draft.images = [...images, { id: imageId, url, width: processed.width, height: processed.height, alt: input.alt }];
+    await tx`
+      update anylearn_plugin.courses
+      set data = ${tx.json(draft as never)}, version = version + 1, updated_at = now()
+      where id = ${row.id}`;
+    return { imageId, width: processed.width, height: processed.height, imagesInCourse: draft.images.length };
   });
 }
 
@@ -188,6 +261,8 @@ export async function publishCourse(input: z.infer<typeof PublishInput>) {
     }
     const parsed = Course.safeParse(draft);
     if (!parsed.success) throw new ToolError(`The course isn't valid yet:\n${formatIssues(parsed.error)}`);
+    const missing = missingImages(parsed.data);
+    if (missing.length) throw new ToolError(`Cards point at missing images: ${missing.join("; ")}. Fix those lessons with add_lesson.`);
     const [{ version }] = await tx<{ version: number }[]>`
       update anylearn_plugin.courses
       set status = 'published', published_at = coalesce(published_at, now()), version = version + 1, updated_at = now()
