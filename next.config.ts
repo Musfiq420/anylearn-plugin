@@ -10,6 +10,19 @@ const nextConfig: NextConfig = {
     "/api/thumbnail/[id]": ["./assets/**/*", "./node_modules/harfbuzzjs/dist/*.wasm"],
     "/api/mcp": ["./assets/**/*", "./node_modules/harfbuzzjs/dist/*.wasm"],
   },
+  async headers() {
+    return [
+      {
+        // The in-chat course card runs in a sandboxed frame on another origin and
+        // imports the MCP Apps client from here as an ES module, which needs CORS.
+        source: "/mcp-app/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Cache-Control", value: "public, max-age=3600, s-maxage=86400" },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

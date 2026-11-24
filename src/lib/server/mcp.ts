@@ -1,6 +1,9 @@
 import "server-only";
+import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from "@modelcontextprotocol/ext-apps/server";
 import type { McpServer } from "@modelcontextprotocol/server";
+import { COURSE_CARD_URI, courseCardHtml } from "./courseCard";
 import { hasDatabase } from "./db";
+import { siteUrl } from "./site";
 import {
   AddLessonInput,
   addLesson,
@@ -97,23 +100,47 @@ export function registerTools(server: McpServer) {
       }),
   );
 
-  server.registerTool(
+  // publish_course also shows the course card (an MCP App) in hosts that support it.
+  registerAppTool(
+    server,
     "publish_course",
     {
       title: "Publish the course",
       description:
-        "Publish a course once every lesson has cards. Returns the shareable link and a thumbnail image URL to show the user. Can be called again after edits to refresh the thumbnail.",
+        "Publish a course once every lesson has cards. Shows the user a course card with an Open button, and returns the shareable link and thumbnail URL. Can be called again after edits to refresh the thumbnail.",
       inputSchema: PublishInput,
       annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
+      _meta: { ui: { resourceUri: COURSE_CARD_URI } },
     },
     (input) =>
       run(async () => {
         const r = await publishCourse(input);
         return ok(
-          `Published "${r.title}": ${r.lessons} lessons, ${r.cards} cards.\nLink: ${r.url}\nThumbnail: ${r.thumbnailUrl}\nShare the link with the user, and show the thumbnail image if you can.`,
-          r,
+          `Published "${r.title}": ${r.lessons} lessons, ${r.cards} cards.\nLink: ${r.url}\nThumbnail: ${r.thumbnailUrl}\nA course card with an Open button is shown to the user where supported; still give them the link in your reply.`,
+          r as unknown as Record<string, unknown>,
         );
       }),
+  );
+
+  registerAppResource(
+    server,
+    "AnyLearn course card",
+    COURSE_CARD_URI,
+    { description: "Shows a published course with its thumbnail and an Open course button." },
+    async () => {
+      const site = siteUrl();
+      const domains = [site, process.env.SUPABASE_URL?.replace(/\/$/, "")].filter((d): d is string => Boolean(d));
+      return {
+        contents: [
+          {
+            uri: COURSE_CARD_URI,
+            mimeType: RESOURCE_MIME_TYPE,
+            text: courseCardHtml(site),
+            _meta: { ui: { csp: { resourceDomains: domains }, prefersBorder: false } },
+          },
+        ],
+      };
+    },
   );
 
   server.registerTool(

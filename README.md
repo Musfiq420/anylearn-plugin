@@ -15,7 +15,7 @@ The interface is in English. Courses can be in any language, including right-to-
 |---|---|---|
 | 1 | Course format + web player (4 card types, lessons, reviews, streak/XP) | **Done** |
 | 2 | MCP server, database, share links, thumbnails | **Done** |
-| 3 | In-chat course card (MCP Apps UI) | Next |
+| 3 | In-chat course card (MCP Apps UI) | **Done** |
 | 4 | Attached files (PDF, images) | |
 | 5 | Accounts and progress sync | |
 | 6 | Six more card types | |
@@ -67,7 +67,7 @@ Then ask, for example: *"Make me a short course on photosynthesis."*
 |---|---|
 | `create_course` | Draft course from a title and lesson outline. Returns `courseId` and a private `editToken`. |
 | `add_lesson` | Adds or replaces one lesson's cards. Cards are validated; errors explain what to fix. |
-| `publish_course` | Checks every lesson has cards, publishes, returns the link and thumbnail URL. |
+| `publish_course` | Checks every lesson has cards, publishes, returns the link and thumbnail URL, and shows the **course card** in the chat (thumbnail, lessons, Open course button) in hosts that support MCP Apps. |
 | `get_course` | Loads a course to continue or edit it. |
 
 The server also sends instructions telling the AI how to build a good course (ask about level/length/language first, mix explanations and questions, add diagrams, keep it short).
@@ -76,6 +76,7 @@ Notes:
 
 - Only the edit token can change a course; the database stores its SHA-256 hash.
 - Calls from ChatGPT and Claude come from the platforms' servers, so per-IP limits would throttle everyone together. Phase 2 uses a global hourly cap (`MAX_COURSES_PER_HOUR`); per-user limits come with accounts in Phase 5.
+- The course card loads the MCP Apps client from `/mcp-app/sdk.js` on this site. `npm run dev` / `npm run build` copy it there from `@modelcontextprotocol/ext-apps` (see `scripts/copy-mcp-app-sdk.mjs`).
 - Thumbnails are drawn with HarfBuzz (text shaped into glyph outlines) and rasterized with resvg, so Bangla, Devanagari and Arabic render correctly.
 
 | Script | Does |
@@ -115,6 +116,7 @@ src/
     progress.ts           Progress in localStorage (moves to the server in Phase 5)
     server/
       mcp.ts              Tool definitions and the AI's instructions
+      courseCard.ts       The in-chat course card (MCP App HTML)
       store.ts            Create / add lesson / publish / load, edit tokens, limits
       courses.ts          Course lookup for pages (samples, then database)
       db.ts, storage.ts   Postgres and Supabase Storage clients

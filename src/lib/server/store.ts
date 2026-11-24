@@ -1,7 +1,8 @@
 import "server-only";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
-import { Card, Course, Lesson, type Course as CourseT } from "../schema";
+import { Card, Course, courseDir, Lesson, type Course as CourseT } from "../schema";
+import type { CourseCardData } from "./courseCard";
 import { db } from "./db";
 import { courseUrl, siteUrl } from "./site";
 import { uploadPublic } from "./storage";
@@ -190,13 +191,20 @@ export async function publishCourse(input: z.infer<typeof PublishInput>) {
 
   const thumbnailUrl = await storeThumbnail(course, version);
   await sql`update anylearn_plugin.courses set thumbnail_url = ${thumbnailUrl} where id = ${course.id}`;
-  return {
+  const card: CourseCardData = {
     url: courseUrl(course.id),
     thumbnailUrl,
     title: course.title,
+    description: course.description,
+    language: course.language,
+    dir: courseDir(course),
+    color: course.color ?? "#1F3A8A",
     lessons: course.lessons.length,
     cards: course.lessons.reduce((n, l) => n + l.cards.length, 0),
+    minutesPerDay: course.minutesPerDay,
+    lessonTitles: course.lessons.map((l) => l.title),
   };
+  return card;
 }
 
 /** Renders the thumbnail and puts it in the bucket. Falls back to the on-demand route. */
